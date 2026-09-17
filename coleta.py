@@ -22,6 +22,8 @@ import time
 import pandas as pd
 from dotenv import load_dotenv
 
+from utils.const import CODIGO_ITENS_BASICOS_SAO_LUIZ
+
 load_dotenv()  # carrega o .env pra dentro de os.environ
 
 import requests
@@ -30,13 +32,7 @@ MARKET_ID = 355
 BASE_URL = f"https://merconnect.mercadapp.com.br/mapp/v3/markets/{MARKET_ID}/items"
 
 # nome do item basico -> category_id (visto na URL como /subcategoria/<id>)
-ITENS_BASICOS = {
-    "arroz": 13758,
-    "feijao": 13759,
-    "acucar": 13760,
-    "oleo": 13799,
-    "ovos": 13797,
-}
+
 
 # Limite de paginas por categoria: nao precisamos de centenas de itens por
 # categoria (o minimo da atividade e 30 registros no TOTAL), entao limitamos
@@ -114,7 +110,7 @@ def coletar_categoria(item_basico: str, category_id: int) -> list[dict]:
 if __name__ == "__main__":
     registros: list[dict] = []
 
-    for nome, cat_id in ITENS_BASICOS.items():
+    for nome, cat_id in CODIGO_ITENS_BASICOS_SAO_LUIZ.items():
         print(f"Coletando {nome} (categoria {cat_id})...")
         try:
             registros.extend(coletar_categoria(nome, cat_id))
@@ -125,7 +121,7 @@ if __name__ == "__main__":
         time.sleep(PAUSA_ENTRE_REQUISICOES)
 
     df = pd.DataFrame(registros)
-    df.to_csv("dados_brutos.csv", index=False, encoding="utf-8-sig")
-    print(f"\nColetados {len(df)} registros -> dados_brutos.csv")
+    df.to_csv("dados/dados_brutos.csv", index=False, encoding="utf-8-sig")
+    print(f"\nColetados {len(df)} registros -> dados/dados_brutos.csv")
     if not df.empty:
         print(df["item_basico"].value_counts())
